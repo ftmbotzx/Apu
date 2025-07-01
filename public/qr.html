@@ -1,29 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WhatsApp QR Code</title>
+  <title>WhatsApp QR</title>
   <style>
-    body { text-align: center; font-family: sans-serif; margin-top: 50px; }
-    #qrBox { margin-top: 20px; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    #timer {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
-  <h2>📲 Scan QR to connect WhatsApp</h2>
-  <div id="qrBox">Loading QR...</div>
+  <h2>📱 Scan the WhatsApp QR Code</h2>
+  <div id="qrcode">Loading QR...</div>
+  <div id="timer">QR expires in 60s</div>
 
   <script>
-    async function loadQR() {
-      const res = await fetch('/qr');
-      if (res.status === 204) {
-        document.getElementById('qrBox').innerText = '⏳ Waiting for QR...';
-      } else {
-        const html = await res.text();
-        document.getElementById('qrBox').innerHTML = html;
-      }
+    let seconds = 60;
+    const qrDiv = document.getElementById('qrcode');
+    const timer = document.getElementById('timer');
+
+    function loadQR() {
+      fetch('/qr')
+        .then(res => {
+          if (res.status === 204) {
+            qrDiv.innerHTML = 'Waiting for QR...';
+            return;
+          }
+          return res.text();
+        })
+        .then(html => {
+          if (html) {
+            qrDiv.innerHTML = html;
+            seconds = 60;
+          }
+        });
     }
 
-    loadQR();
-    setInterval(loadQR, 5000); // refresh every 5 sec
+    // Countdown and refresh QR every 60s
+    setInterval(() => {
+      seconds--;
+      timer.innerText = `QR expires in ${seconds}s`;
+
+      if (seconds <= 0) {
+        loadQR();
+        seconds = 60;
+      }
+    }, 1000);
+
+    // Check if already connected
+    setInterval(() => {
+      fetch('/status')
+        .then(res => res.json())
+        .then(data => {
+          if (data.connected) {
+            qrDiv.innerHTML = '✅ Connected to WhatsApp!';
+            timer.innerText = '';
+          }
+        });
+    }, 5000);
+
+    loadQR(); // Initial load
   </script>
 </body>
 </html>
