@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WhatsApp Message Sender</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    input, textarea, button { display: block; margin: 10px 0; width: 100%; padding: 8px; }
+    button { background: #25D366; color: white; font-weight: bold; border: none; cursor: pointer; }
+    #result { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>📤 Send WhatsApp Message</h2>
+  <form id="sendForm">
+    <input type="text" name="number" placeholder="Phone Number (e.g. 91XXXXXXXXXX)" required>
+    <textarea name="message" placeholder="Text Message (optional)"></textarea>
+    <input type="file" name="file">
+    <input type="text" name="caption" placeholder="Caption (for media)">
+    <button type="submit">Send</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('sendForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const number = form.number.value;
+      const message = form.message.value.trim();
+      const caption = form.caption.value.trim();
+      const fileInput = form.file;
+      const file = fileInput.files[0];
+
+      const formData = new FormData();
+      formData.append('number', number);
+      formData.append('message', message);
+      formData.append('caption', caption);
+
+      if (file) {
+        formData.append('file', file);
+        formData.append('type', 'media');
+      } else {
+        formData.append('type', 'text');
+      }
+
+      const res = await fetch('/send-form', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await res.json();
+      document.getElementById('result').innerText = result.status || result.error || 'Unknown error';
+    });
+  </script>
+</body>
+</html>
