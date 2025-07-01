@@ -2,9 +2,9 @@
   "name": "whatsapp-api-render",
   "version": "1.0.0",
   "description": "WhatsApp Web API with File Upload & QR",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
