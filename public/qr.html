@@ -1,12 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Scan QR Code</title>
-  <meta http-equiv="refresh" content="10"> <!-- reload every 10 sec -->
+  <title>WhatsApp QR Code</title>
+  <style>
+    body { text-align: center; font-family: sans-serif; margin-top: 50px; }
+    #qrBox { margin-top: 20px; }
+  </style>
 </head>
-<body style="text-align:center;">
-  <h2>📱 Scan WhatsApp QR</h2>
-  <iframe src="/qr" style="border:none;width:320px;height:320px;"></iframe>
-  <p>Refreshing in 10s... If QR expired, new one will be shown.</p>
+<body>
+  <h2>📲 Scan QR to connect WhatsApp</h2>
+  <div id="qrBox">Loading QR...</div>
+
+  <script>
+    async function loadQR() {
+      const res = await fetch('/qr');
+      if (res.status === 204) {
+        document.getElementById('qrBox').innerText = '⏳ Waiting for QR...';
+      } else {
+        const html = await res.text();
+        document.getElementById('qrBox').innerHTML = html;
+      }
+    }
+
+    loadQR();
+    setInterval(loadQR, 5000); // refresh every 5 sec
+  </script>
 </body>
 </html>
